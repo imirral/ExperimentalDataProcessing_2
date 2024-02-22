@@ -2,14 +2,14 @@ import math
 import numpy as np
 
 class Processing:
-    def antishift(self, inData, N):
+    def anti_shift(self, inData, N):
         out_data = inData
         c = sum(inData) / len(inData)
         for i in range(len(inData)):
             out_data[i] = inData[i] - c
         return out_data
 
-    def antiSpike(self, data, N, R):
+    def anti_spike(self, data, N, R):
         out_data = []
         for i in range(N):
             if (data[i] > R or data[i] < -R) and i != 0 and i != N - 1:
@@ -18,19 +18,13 @@ class Processing:
                 out_data.append(data[i])
         return out_data
 
-    def antiTrendLinear(self, data, N):
+    def anti_trend_linear(self, data, N):
         out_data = []
         for i in range(N - 1):
             out_data.append(data[i + 1] - data[i])
         return out_data
 
-    def subtraction(self, minuend, subtrahend, N):
-        out_data = []
-        for i in range(N):
-            out_data.append(minuend[i] - subtrahend[i])
-        return out_data
-
-    def antiTrendNonLinear(self, data, N, W):
+    def anti_trend_nonlinear(self, data, N, W):
         out_data = []
         for i in range(N - W):
             x_n = 0
@@ -40,7 +34,7 @@ class Processing:
             out_data.append(x_n)
         return out_data
 
-    def antiNoise(self, data, N, M):
+    def anti_noise(self, data, N, M):
         out_data = []
         print(len(data))
         for i in range(N):
@@ -54,16 +48,16 @@ class Processing:
 
     def lpf(self, fc, dt, m):
         d = [0.35577019, 0.2436983, 0.07211497, 0.00630165]
-        # rectangular part weights
+
         fact = 2 * fc * dt
         lpw = []
         lpw.append(fact)
         arg = fact * math.pi
         for i in range(1, m + 1):
             lpw.append(np.sin(arg * i) / (math.pi * i))
-        # trapezoid smoothing at the end
+
         lpw[m] = lpw[m] / 2
-        # P310 smoothing window
+
         sumg = lpw[0]
         for i in range(1, m + 1):
             sum = d[0]
@@ -114,34 +108,3 @@ class Processing:
             else:
                 bsw.append(lpw1[k] - lpw2[k])
         return bsw
-
-    def shift_2d(self, array, c):
-        # new_arr = array.copy()
-        # for i in range(new_arr.shape[0]):
-        #     for j in range(new_arr.shape[1]):
-        #         new_arr[i, j] = new_arr[i, j] + c
-        c_arr = np.full(array.shape, c)
-        return array + c_arr
-
-    def multModel_2d(self, array, c):
-        c_arr = np.full(array.shape, c)
-        return array * c_arr
-
-    def recount_2d(self, array, s):
-        new_arr = array.copy()
-        min_val = np.min(new_arr)
-        max_val = np.max(new_arr)
-
-        if max_val - min_val == 0:
-            print("Division by zero or near-zero denominator!")
-
-        # Масштабирование для снижения вероятности переполнения
-        scale_factor = 1.0
-        if (max_val - min_val) > 0:
-            scale_factor = s / (max_val - min_val)
-
-        for i in range(new_arr.shape[0]):
-            for j in range(new_arr.shape[1]):
-                new_arr[i, j] = (new_arr[i, j] - min_val) * scale_factor
-
-        return new_arr

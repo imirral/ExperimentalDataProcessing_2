@@ -23,7 +23,7 @@ class Model:
         recount_data = self.recount(data, R)
         return recount_data
 
-    def myNoise(self, N, R):
+    def my_noise(self, N, R):
         m = 32768
         a = 23
         c = 12345
@@ -37,20 +37,21 @@ class Model:
         recount_data = self.recount(data, R)
         return recount_data
 
-    def recount(self, data, R):
-        x_min = min(data)
-        x_max = max(data)
-        for i in range(len(data)):
-            data[i] = ((data[i] - x_min) / (x_max - x_min) - 0.5) * 2 * R
-        return data
-
     def shift(self, inData, N, C):
         outData = inData
         for i in range(len(inData)):
             outData[i] = inData[i] + C
         return outData
 
-    def impulseNoise(self, data, N, M, R, Rs):
+    def shift_2d(self, array, c):
+        c_arr = np.full(array.shape, c)
+        return array + c_arr
+
+    def mult_model_2d(self, array, c):
+        c_arr = np.full(array.shape, c)
+        return array * c_arr
+
+    def spikes(self, data, N, M, R, Rs):
         out_data = data
         d = dict()
         for i in range(M):
@@ -67,7 +68,7 @@ class Model:
         x = A * np.sin(2 * math.pi * f * del_t * k)
         return x
 
-    def polyHarm(self, N, A0, f0, A1, f1, A2, f2, del_t):
+    def poly_harm(self, N, A0, f0, A1, f1, A2, f2, del_t):
         k = np.arange(0, N, 1)
         xi0 = A0 * np.sin(2 * math.pi * f0 * del_t * k)
         xi1 = A1 * np.sin(2 * math.pi * f1 * del_t * k)
@@ -75,22 +76,31 @@ class Model:
         x = xi0 + xi1 + xi2
         return x
 
-    def addModel(self, data1, data2, N):
+    def add_model(self, data1, data2, N):
         outData = []
         for i in range(N):
             outData.append(data1[i] + data2[i])
         return outData
 
-    def multModel(self, data1, data2, N):
+    def mult_model(self, data1, data2, N):
         outData = []
         for i in range(N):
             outData.append(data1[i] * data2[i])
         return outData
 
+    def convolution_model(self, x, h, N, M):
+        out_data = []
+        for i in range(N):
+            y = 0
+            for j in range(M):
+                y += x[i - j] * h[j]
+            out_data.append(y)
+        return out_data
+
     def heart(self, N, f, del_t, a):
         harm = self.harm(N, 1, f, del_t)
         nonlinear_trend = self.trend_nonlinear(N, -a * del_t, 1)
-        h_t = self.multModel(harm, nonlinear_trend, N)
+        h_t = self.mult_model(harm, nonlinear_trend, N)
         h_n = []
         max_ht = max(h_t)
         for i in range(len(h_t)):
@@ -111,3 +121,29 @@ class Model:
         pw.extend([c2 for _ in range(n3, n4 + 1)])
         pw.extend([1 for _ in range(n4 + 1, N)])
         return pw
+
+    def recount(self, data, R):
+        x_min = min(data)
+        x_max = max(data)
+        for i in range(len(data)):
+            data[i] = ((data[i] - x_min) / (x_max - x_min) - 0.5) * 2 * R
+        return data
+
+    def recount_2d(self, array, s):
+        new_arr = array.copy()
+        min_val = np.min(new_arr)
+        max_val = np.max(new_arr)
+
+        if max_val - min_val == 0:
+            print("Division by zero or near-zero denominator!")
+
+        # Масштабирование для снижения вероятности переполнения
+        scale_factor = 1.0
+        if (max_val - min_val) > 0:
+            scale_factor = s / (max_val - min_val)
+
+        for i in range(new_arr.shape[0]):
+            for j in range(new_arr.shape[1]):
+                new_arr[i, j] = (new_arr[i, j] - min_val) * scale_factor
+
+        return new_arr
