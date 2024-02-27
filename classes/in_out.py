@@ -88,6 +88,6 @@ class In_Out:
         new_height = int(img.shape[0] * coef)
 
         # Изменение размера изображения с использованием билинейной интерполяции
-        resized_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
+        resized_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_LINEAR_EXACT)
 
         return resized_img
