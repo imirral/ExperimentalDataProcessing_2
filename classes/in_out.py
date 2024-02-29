@@ -28,6 +28,8 @@ class In_Out:
         return img
 
     def show_jpg_file(self, img, if_color, name):
+        plt.imshow(img)
+
         if if_color:
             plt.imshow(img)
         else:
@@ -35,8 +37,31 @@ class In_Out:
 
         plt.title(name, fontsize=12)
         plt.axis('off')
-        plt.autoscale(tight=True)
 
+        plt.show()
+
+    def show_jpg_files(self, images, titles, if_color):
+        num_images = len(images)
+
+        if num_images == 0 or len(titles) != num_images:
+            print("Количество изображений и заголовков не совпадает")
+            return
+
+        fig, axes = plt.subplots(1, num_images)
+
+        axes = [axes] if isinstance(axes, plt.Axes) else axes
+
+        for i, ax in enumerate(axes):
+            if if_color:
+                ax.imshow(images[i])
+            else:
+                ax.imshow(images[i], cmap='gray')
+
+            ax.set_title(titles[i])
+            ax.axis('off')
+            ax.set_aspect('equal')
+
+        plt.tight_layout()
         plt.show()
 
     def write_jpg_file(self, array, file_name):

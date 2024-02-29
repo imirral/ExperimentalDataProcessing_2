@@ -5,20 +5,22 @@ def main():
     in_out = In_Out()
     model = Model()
 
-    file_name = 'grace/grace'
+    file_name = 'grace'
     if_color = False
 
-    # Оригинальные данные
-    img = in_out.read_jpg_file(file_name)
-    in_out.show_jpg_file(img, if_color, 'grace')
-    print("Размер изображения: " + str(img.shape))
+    # grace
+    img = in_out.read_jpg_file('grace/' + file_name)
 
     # shift
-    plus_arr = model.shift_2d(img, 30)
-    in_out.write_jpg_file(plus_arr, file_name + '_shift')
-    in_out.show_jpg_file(in_out.read_jpg_file(file_name + '_shift'), if_color, 'grace_shift')
+    img_shift = model.shift_2d(img, 30)
+    in_out.write_jpg_file(img_shift, 'grace/' + file_name + '_shift')
+    img_shift = in_out.read_jpg_file('grace/' + file_name + '_shift')
 
     # multModel
-    umn_arr = model.mult_model_2d(img, 1.3)
-    in_out.write_jpg_file(umn_arr, file_name + '_mult')
-    in_out.show_jpg_file(in_out.read_jpg_file(file_name + '_mult'), if_color, 'grace_mult')
+    img_mult = model.mult_model_2d(img, 1.3)
+    in_out.write_jpg_file(img_mult, 'grace/' + file_name + '_mult')
+    img_mult = in_out.read_jpg_file('grace/' + file_name + '_mult')
+
+    in_out.show_jpg_files([img, img_shift, img_mult],
+                          ['grace', 'grace_shift', 'grace_mult'],
+                          if_color)

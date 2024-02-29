@@ -108,3 +108,48 @@ class Processing:
             else:
                 bsw.append(lpw1[k] - lpw2[k])
         return bsw
+
+    def recount(self, data, R):
+        x_min = min(data)
+        x_max = max(data)
+
+        for i in range(len(data)):
+            data[i] = ((data[i] - x_min) / (x_max - x_min) - 0.5) * 2 * R
+        return data
+
+    def recount_2d(self, array, s):
+        new_arr = array.copy()
+        min_val = np.min(new_arr)
+        max_val = np.max(new_arr)
+
+        if max_val - min_val == 0:
+            print("Division by zero or near-zero denominator!")
+
+        # Масштабирование для снижения вероятности переполнения
+        scale_factor = 1.0
+        if (max_val - min_val) > 0:
+            scale_factor = s / (max_val - min_val)
+
+        for i in range(new_arr.shape[0]):
+            for j in range(new_arr.shape[1]):
+                new_arr[i, j] = (new_arr[i, j] - min_val) * scale_factor
+
+        return new_arr
+
+    def negative(self, image, max_intensity):
+        neg_image = max_intensity - image
+        return neg_image
+
+    def gamma_transform(self, image, c_gamma, gamma):
+        gamma_corrected = np.power(c_gamma * image / 255.0, gamma) * 255.0
+        gamma_corrected = np.clip(gamma_corrected, 0, 255).astype(np.uint8)
+
+        return gamma_corrected
+
+    def log_transform(self, image, c_log):
+        eps = 1e-8  # Минимальное значение
+
+        log_transformed = c_log * np.log(eps + image)
+        log_transformed = np.clip(log_transformed, 0, 255).astype(np.uint8)
+
+        return log_transformed

@@ -121,29 +121,3 @@ class Model:
         pw.extend([c2 for _ in range(n3, n4 + 1)])
         pw.extend([1 for _ in range(n4 + 1, N)])
         return pw
-
-    def recount(self, data, R):
-        x_min = min(data)
-        x_max = max(data)
-        for i in range(len(data)):
-            data[i] = ((data[i] - x_min) / (x_max - x_min) - 0.5) * 2 * R
-        return data
-
-    def recount_2d(self, array, s):
-        new_arr = array.copy()
-        min_val = np.min(new_arr)
-        max_val = np.max(new_arr)
-
-        if max_val - min_val == 0:
-            print("Division by zero or near-zero denominator!")
-
-        # Масштабирование для снижения вероятности переполнения
-        scale_factor = 1.0
-        if (max_val - min_val) > 0:
-            scale_factor = s / (max_val - min_val)
-
-        for i in range(new_arr.shape[0]):
-            for j in range(new_arr.shape[1]):
-                new_arr[i, j] = (new_arr[i, j] - min_val) * scale_factor
-
-        return new_arr
