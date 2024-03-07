@@ -135,8 +135,8 @@ def main():
 
     # HollywoodLC
     img_name = 'HollywoodLC'
-    c_gamma = 1
-    gamma = 0.67
+    c_gamma = 1.48
+    gamma = 4
     c_log = 30
 
     img_data = in_out.read_jpg_file(img_name + '/' + img_name)

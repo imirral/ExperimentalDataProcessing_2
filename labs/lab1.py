@@ -22,5 +22,7 @@ def main():
     img_mult = in_out.read_jpg_file('grace/' + file_name + '_mult')
 
     in_out.show_jpg_files([img, img_shift, img_mult],
-                          ['grace', 'grace_shift', 'grace_mult'],
+                          ['grace ' + str(img.shape),
+                           'grace_shift ' + str(img_shift.shape),
+                           'grace_mult ' + str(img_mult.shape)],
                           if_color)

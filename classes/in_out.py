@@ -3,6 +3,7 @@ import soundfile as sf
 import cv2 as cv2
 import matplotlib.pyplot as plt
 import struct
+import math
 
 from scipy.io import wavfile
 
@@ -27,19 +28,6 @@ class In_Out:
         img = cv2.imread('data/jpg/' + file_name + '.jpg', cv2.IMREAD_GRAYSCALE)
         return img
 
-    def show_jpg_file(self, img, if_color, name):
-        plt.imshow(img)
-
-        if if_color:
-            plt.imshow(img)
-        else:
-            plt.imshow(img, cmap='gray')
-
-        plt.title(name, fontsize=12)
-        plt.axis('off')
-
-        plt.show()
-
     def show_jpg_files(self, images, titles, if_color):
         num_images = len(images)
 
@@ -47,19 +35,18 @@ class In_Out:
             print("Количество изображений и заголовков не совпадает")
             return
 
-        fig, axes = plt.subplots(1, num_images)
+        fig, axes = plt.subplots(1, num_images, figsize=(12, 6))
+        axes = axes.flatten()
 
-        axes = [axes] if isinstance(axes, plt.Axes) else axes
-
-        for i, ax in enumerate(axes):
+        for i in range(num_images):
             if if_color:
-                ax.imshow(images[i])
+                axes[i].imshow(images[i])
             else:
-                ax.imshow(images[i], cmap='gray')
+                axes[i].imshow(images[i], cmap='gray')
 
-            ax.set_title(titles[i])
-            ax.axis('off')
-            ax.set_aspect('equal')
+            axes[i].set_title(titles[i])
+            axes[i].axis('off')
+            axes[i].set_aspect('equal')
 
         plt.tight_layout()
         plt.show()
@@ -70,12 +57,12 @@ class In_Out:
     def read_xcr_file(self, file_name, shape):
         with open('data/xcr/' + file_name + '.xcr', 'rb') as file:
             header = file.read(2048)
-            data = file.read(shape[0] * shape[1] * 2)  # Считываем нужное количество байт данных
+            data = file.read(shape[0] * shape[1] * 2)  # Считывание нужного количества байт данных
 
             # Преобразование данных из двоичного формата
             image_data = np.array(struct.unpack('<' + 'H' * (shape[0] * shape[1]), data)).reshape(shape)
 
-            # Перестановка байтов в каждом двухбайтовом числе (младший <-> старший байт)
+            # Перестановка байтов в каждом двухбайтовом числе (младший байт <-> старший байт)
             image_data.byteswap(True)
 
             return image_data
@@ -88,8 +75,7 @@ class In_Out:
             file.write(binary_data)
 
     def read_bin_file(self, file_name, shape):
-        with open('data/bin/' + file_name + '.bin', 'rb') as file:
-
+        with (open('data/bin/' + file_name + '.bin', 'rb') as file):
             # Чтение необходимого количества байт данных
             binary_data = file.read(shape[0] * shape[1] * 2)
 
@@ -97,22 +83,22 @@ class In_Out:
 
             return data
 
+    # s = Ближайший известный пиксель
     def reshape_nearest_neighbor(self, img, coef):
-        # Определение новых размеров изображения
-        new_width = int(img.shape[1] * coef)
-        new_height = int(img.shape[0] * coef)
+        new_width = math.ceil(img.shape[1] * coef)
+        new_height = math.ceil(img.shape[0] * coef)
 
-        # Изменение размера изображения с помощью метода ближайшего соседа
-        resized_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_NEAREST)
+        resized_img = cv2.resize(img, (new_width, new_height),
+                                 interpolation=cv2.INTER_NEAREST)
 
         return resized_img
 
+    # s = Среднее от 2*2 ближайших известных пикселей
     def reshape_bilinear_interpolation(self, img, coef):
-        # Определение новых размеров изображения
-        new_width = int(img.shape[1] * coef)
-        new_height = int(img.shape[0] * coef)
+        new_width = math.ceil(img.shape[1] * coef)
+        new_height = math.ceil(img.shape[0] * coef)
 
-        # Изменение размера изображения с использованием билинейной интерполяции
-        resized_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_LINEAR_EXACT)
+        resized_img = cv2.resize(img, (new_width, new_height),
+                                 interpolation=cv2.INTER_LINEAR_EXACT)
 
         return resized_img

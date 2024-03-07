@@ -117,39 +117,60 @@ class Processing:
             data[i] = ((data[i] - x_min) / (x_max - x_min) - 0.5) * 2 * R
         return data
 
+    # s = ((r - min) / (max - min)) * S
     def recount_2d(self, array, s):
         new_arr = array.copy()
-        min_val = np.min(new_arr)
-        max_val = np.max(new_arr)
 
-        if max_val - min_val == 0:
-            print("Division by zero or near-zero denominator!")
+        min = np.min(new_arr)
+        max = np.max(new_arr)
+
+        if max - min == 0:
+            print("Знаменатель равен 0")
 
         # Масштабирование для снижения вероятности переполнения
-        scale_factor = 1.0
-        if (max_val - min_val) > 0:
-            scale_factor = s / (max_val - min_val)
+        if (max - min) > 0:
+            scale_factor = s / (max - min)
+        else:
+            scale_factor = 1.0
 
+        # Приведение в шкалу серости
         for i in range(new_arr.shape[0]):
             for j in range(new_arr.shape[1]):
-                new_arr[i, j] = (new_arr[i, j] - min_val) * scale_factor
+                new_arr[i, j] = (new_arr[i, j] - min) * scale_factor
 
         return new_arr
 
+    # s = L - r
     def negative(self, image, max_intensity):
         neg_image = max_intensity - image
+
         return neg_image
 
-    def gamma_transform(self, image, c_gamma, gamma):
-        gamma_corrected = np.power(c_gamma * image / 255.0, gamma) * 255.0
+    # s = C * r ^ gamma
+    def gamma_transform(self, image, c, gamma):
+        gamma_corrected = np.power(c * image / 255.0, gamma) * 255.0
         gamma_corrected = np.clip(gamma_corrected, 0, 255).astype(np.uint8)
 
         return gamma_corrected
 
+    # s = C * log(r + eps)
     def log_transform(self, image, c_log):
-        eps = 1e-8  # Минимальное значение
+        eps = 1e-8  # Минимальное значение = 1 * 10 ^ (-8)
 
         log_transformed = c_log * np.log(eps + image)
         log_transformed = np.clip(log_transformed, 0, 255).astype(np.uint8)
 
         return log_transformed
+
+    def gradation_transform(self, image, hist):
+        total_pixels = image.shape[0] * image.shape[1]
+
+        # Расчет нормализованной гистограммы (p(r_k) = n_k / M * N)
+        hist_norm = [x / total_pixels for x in hist]
+
+        # Гистограммное выравнивание (integral from 0 to r(p(q)dq))
+        cdf = np.cumsum(hist_norm) * 255
+
+        new_image = np.interp(image, range(256), cdf).astype(np.uint8)
+
+        return new_image

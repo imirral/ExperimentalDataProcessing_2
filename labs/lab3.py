@@ -7,7 +7,7 @@ def main():
     in_out = In_Out()
     processing = Processing()
 
-    big_coef = 1.3
+    big_coef = 1.2
     small_coef = 0.7
     screen_height = 256
 
@@ -59,8 +59,8 @@ def main():
 
     in_out.show_jpg_files([xcr_1_data_recount, xcr_1_resize_neighbor, xcr_1_resize_interpol],
                           ['c12-85v ' + str(xcr_1_data_recount.shape),
-                           'c12-85v_big_neighbor ' + str(xcr_1_resize_neighbor.shape),
-                           'c12-85v_big_interpol ' + str(xcr_1_resize_interpol.shape)],
+                           'c12-85v_small_neighbor ' + str(xcr_1_resize_neighbor.shape),
+                           'c12-85v_small_interpol ' + str(xcr_1_resize_interpol.shape)],
                           if_color)
 
     # u0
@@ -82,6 +82,6 @@ def main():
 
     in_out.show_jpg_files([xcr_2_data_recount, xcr_2_resize_neighbor, xcr_2_resize_interpol],
                           ['u0 ' + str(xcr_2_data_recount.shape),
-                           'u0_big_neighbor ' + str(xcr_2_resize_neighbor.shape),
-                           'u0_big_interpol ' + str(xcr_2_resize_interpol.shape)],
+                           'u0_small_neighbor ' + str(xcr_2_resize_neighbor.shape),
+                           'u0_small_interpol ' + str(xcr_2_resize_interpol.shape)],
                           if_color)

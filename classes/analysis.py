@@ -100,6 +100,16 @@ class Analysis:
             hist[left_border] = count
         return hist
 
+    def hist_2d(self, image):
+        hist = [0] * 256
+
+        for y in range(image.shape[1]):
+            for x in range(image.shape[0]):
+                pixel = image[x, y]
+                hist[pixel] += 1
+
+        return hist
+
     def auto_correlation(self, data, N):
         covariance = self.covariance(data, N)
         max_R_xx = self.maximum(covariance)
@@ -167,7 +177,7 @@ class Analysis:
             out_data.append(Xn)
         return out_data
 
-    def frequencyResponse(self, data, N):
+    def frequency_response(self, data, N):
         out_data = []
         array = self.fourier(data, N)
         for i in range(N):
