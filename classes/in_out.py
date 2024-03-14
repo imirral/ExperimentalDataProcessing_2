@@ -5,7 +5,9 @@ import matplotlib.pyplot as plt
 import struct
 import math
 
+from matplotlib import image as mpimg
 from scipy.io import wavfile
+
 
 class In_Out:
 
@@ -50,6 +52,15 @@ class In_Out:
 
         plt.tight_layout()
         plt.show()
+
+    def show_jpg_sub(self, img, if_color, title):
+        if not if_color:
+            plt.imshow(img, cmap='gray')
+        else:
+            plt.imshow(img)
+
+        plt.title(title)
+        plt.axis('off')
 
     def write_jpg_file(self, array, file_name):
         cv2.imwrite('data/jpg/' + file_name + '.jpg', array)

@@ -88,15 +88,6 @@ class Model:
             outData.append(data1[i] * data2[i])
         return outData
 
-    def convolution_model(self, x, h, N, M):
-        out_data = []
-        for i in range(N):
-            y = 0
-            for j in range(M):
-                y += x[i - j] * h[j]
-            out_data.append(y)
-        return out_data
-
     def heart(self, N, f, del_t, a):
         harm = self.harm(N, 1, f, del_t)
         nonlinear_trend = self.trend_nonlinear(N, -a * del_t, 1)

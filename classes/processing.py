@@ -18,10 +18,14 @@ class Processing:
                 out_data.append(data[i])
         return out_data
 
-    def anti_trend_linear(self, data, N):
+    def anti_trend_linear(self, data):
+        length = len(data)
+
         out_data = []
-        for i in range(N - 1):
+
+        for i in range(length - 1):
             out_data.append(data[i + 1] - data[i])
+
         return out_data
 
     def anti_trend_nonlinear(self, data, N, W):

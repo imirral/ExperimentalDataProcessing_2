@@ -110,57 +110,98 @@ class Analysis:
 
         return hist
 
-    def auto_correlation(self, data, N):
-        covariance = self.covariance(data, N)
-        max_R_xx = self.maximum(covariance)
+    def auto_correlation(self, data):
+        length = len(data)
+
+        covariance = self.covariance(data, length)
+        max_r_xx = self.maximum(covariance)
+
         out_data = []
-        for l in range(N):
-            out_data.append(covariance[l] / max_R_xx)
+
+        for l in range(length):
+            out_data.append(covariance[l] / max_r_xx)
+
         return out_data
 
-    def covariance(self, data, N):
+    def covariance(self, data, n):
         avg_x = self.average(data)
+
         out_data = []
-        for l in range(N):
-            R_xx = 0
-            for k in range(0, N - l):
-                R_xx += (data[k] - avg_x) * (data[k + l] - avg_x)
-            R_xx = R_xx / N
-            out_data.append(R_xx)
+
+        for l in range(n):
+            r_xx = 0
+
+            for k in range(0, n - l):
+                r_xx += (data[k] - avg_x) * (data[k + l] - avg_x)
+
+            r_xx = r_xx / n
+            out_data.append(r_xx)
+
         return out_data
 
-    def cross_correlation(self, dataX, dataY, N):
-        avg_x = self.average(dataX)
-        avg_y = self.average(dataY)
+    def cross_correlation(self, data_x, data_y):
+        length = len(data_x)
+
+        avg_x = self.average(data_x)
+        avg_y = self.average(data_y)
+
         out_data = []
-        for l in range(N):
-            R_xy = 0
-            for k in range(0, N - l):
-                R_xy += (dataX[k] - avg_x) * (dataY[k + l] - avg_y)
-            R_xy = R_xy / N
-            out_data.append(R_xy)
+
+        for l in range(length):
+            r_xy = 0
+
+            for k in range(0, length - l):
+                r_xy += (data_x[k] - avg_x) * (data_y[k + l] - avg_y)
+
+            r_xy = r_xy / length
+            out_data.append(r_xy)
+
         return out_data
 
-    def fourier(self, data, N):
+    def convolution(self, x, h, n, m):
         out_data = []
-        for i in range(N):
-            Re_Xn = 0
-            Im_Xn = 0
-            for k in range(N):
-                Re_Xn += data[k] * np.cos(2 * math.pi * i * k / N)
-                Im_Xn += data[k] * np.sin(2 * math.pi * i * k / N)
-            Re_Xn = Re_Xn / N
-            Im_Xn = Im_Xn / N
-            Xn = np.sqrt((Re_Xn ** 2) + (Im_Xn ** 2))
-            out_data.append(Xn)
+
+        for i in range(n):
+            y = 0
+
+            for j in range(m):
+                y += x[i - j] * h[j]
+
+            out_data.append(y)
+
         return out_data
 
-    def spectrum_fourier(self, X_n, N, dt):
+    def fourier(self, data):
+        length = len(data)
+
         out_data = []
+
+        for i in range(length):
+            re_xn = 0
+            im_xn = 0
+
+            for k in range(length):
+                re_xn += data[k] * np.cos(2 * math.pi * i * k / length)
+                im_xn += data[k] * np.sin(2 * math.pi * i * k / length)
+
+            re_xn = re_xn / length
+            im_xn = im_xn / length
+
+            xn = np.sqrt((re_xn ** 2) + (im_xn ** 2))
+
+            out_data.append(xn)
+
+        return out_data
+
+    def spectrum_fourier(self, x_n, n, dt):
+        out_data = []
+
         f_border = 1 / (2 * dt)
-        df = 2 * f_border / N
-        for i in range(N):
-            out_data.append(X_n[i] * df)
+        df = 2 * f_border / n
+
+        for i in range(n):
+            out_data.append(x_n[i] * df)
+
         return out_data
 
     def inverse_fourier(self, data, N):
@@ -177,9 +218,12 @@ class Analysis:
             out_data.append(Xn)
         return out_data
 
-    def frequency_response(self, data, N):
+    def frequency_response(self, data, n):
         out_data = []
-        array = self.fourier(data, N)
-        for i in range(N):
-            out_data.append(array[i] * N)
+
+        array = self.fourier(data, n)
+
+        for i in range(n):
+            out_data.append(array[i] * n)
+
         return out_data

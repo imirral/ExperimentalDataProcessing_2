@@ -41,6 +41,11 @@ def main():
     subtract_neighbor = img_data - changed_img_neighbor
     subtract_interpol = img_data - changed_img_interpol
 
+    for y in range(img_data.shape[1]):
+        for x in range(img_data.shape[0]):
+            subtract_neighbor[x, y] += 1
+            subtract_interpol[x, y] += 1
+
     hist_neighbor = analysis.hist_2d(subtract_neighbor)
     hist_interpol = analysis.hist_2d(subtract_interpol)
 
