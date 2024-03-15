@@ -59,7 +59,7 @@ class In_Out:
         else:
             plt.imshow(img)
 
-        plt.title(title)
+        plt.title(title, fontsize=15)
         plt.axis('off')
 
     def write_jpg_file(self, array, file_name):
