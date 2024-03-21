@@ -46,21 +46,15 @@ def main():
             subtract_neighbor[x, y] += 1
             subtract_interpol[x, y] += 1
 
-    hist_neighbor = analysis.hist_2d(subtract_neighbor)
-    hist_interpol = analysis.hist_2d(subtract_interpol)
+    in_out.write_jpg_file(subtract_neighbor, img_name + '/' + img_name + '_subtract_neighbor')
+    in_out.write_jpg_file(subtract_interpol, img_name + '/' + img_name + '_subtract_interpol')
 
-    grad_neigbor = processing.gradation_transform(subtract_neighbor, hist_neighbor)
-    grad_interpol = processing.gradation_transform(subtract_interpol, hist_interpol)
-
-    in_out.write_jpg_file(grad_neigbor, img_name + '/' + img_name + '_subtract_neighbor_and_gradation')
-    in_out.write_jpg_file(grad_interpol, img_name + '/' + img_name + '_subtract_interpol_and_gradation')
-
-    in_out.show_jpg_files([img_data, changed_img_neighbor, subtract_neighbor, grad_neigbor],
+    in_out.show_jpg_files([img_data, changed_img_neighbor, subtract_neighbor],
                           [img_name, img_name + '_changed_neighbor',
-                           img_name + '_subtraction_neighbor', img_name + '_gradation_subtraction',],
+                           img_name + '_subtraction_neighbor'],
                           if_color)
 
-    in_out.show_jpg_files([img_data, changed_img_interpol, subtract_interpol, grad_interpol],
+    in_out.show_jpg_files([img_data, changed_img_interpol, subtract_interpol],
                           [img_name, img_name + '_changed_interpol',
-                           img_name + '_subtraction_interpol', img_name + '_gradation_subtraction', ],
+                           img_name + '_subtraction_interpol'],
                           if_color)

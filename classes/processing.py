@@ -113,37 +113,6 @@ class Processing:
                 bsw.append(lpw1[k] - lpw2[k])
         return bsw
 
-    def recount(self, data, R):
-        x_min = min(data)
-        x_max = max(data)
-
-        for i in range(len(data)):
-            data[i] = ((data[i] - x_min) / (x_max - x_min) - 0.5) * 2 * R
-        return data
-
-    # s = ((r - min) / (max - min)) * S
-    def recount_2d(self, array, s):
-        new_arr = array.copy()
-
-        min = np.min(new_arr)
-        max = np.max(new_arr)
-
-        if max - min == 0:
-            print("Знаменатель равен 0")
-
-        # Масштабирование для снижения вероятности переполнения
-        if (max - min) > 0:
-            scale_factor = s / (max - min)
-        else:
-            scale_factor = 1.0
-
-        # Приведение в шкалу серости
-        for i in range(new_arr.shape[0]):
-            for j in range(new_arr.shape[1]):
-                new_arr[i, j] = (new_arr[i, j] - min) * scale_factor
-
-        return new_arr
-
     # s = L - r
     def negative(self, image, max_intensity):
         neg_image = max_intensity - image
@@ -178,3 +147,39 @@ class Processing:
         new_image = np.interp(image, range(256), cdf).astype(np.uint8)
 
         return new_image
+
+    def average_filter(self, image_data, mask=3):
+        rows = len(image_data)
+        cols = len(image_data[0])
+
+        result = [[0 for _ in range(cols)] for _ in range(rows)]
+
+        for i in range(rows):
+            for j in range(cols):
+                total = 0
+                count = 0
+                for k in range(-mask // 2, mask // 2 + 1):
+                    for l in range(-mask // 2, mask // 2 + 1):
+                        if 0 <= i + k < rows and 0 <= j + l < cols:
+                            total += image_data[i + k][j + l]
+                            count += 1
+                result[i][j] = total / count
+
+        return result
+
+    def median_filter(self, image_data, filter_size=3):
+        rows = len(image_data)
+        cols = len(image_data[0])
+
+        result = [[0 for _ in range(cols)] for _ in range(rows)]
+
+        for i in range(rows):
+            for j in range(cols):
+                neighbors = []
+                for k in range(-filter_size // 2, filter_size // 2 + 1):
+                    for l in range(-filter_size // 2, filter_size // 2 + 1):
+                        if 0 <= i + k < rows and 0 <= j + l < cols:
+                            neighbors.append(image_data[i + k][j + l])
+                result[i][j] = np.median(neighbors)
+
+        return result

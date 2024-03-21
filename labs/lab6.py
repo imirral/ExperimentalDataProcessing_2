@@ -33,8 +33,8 @@ def main():
     plt.rcParams["figure.figsize"] = [20, 8.5]
     plt.rcParams["figure.autolayout"] = True
 
-    # img_name = 'c12-85v'
-    img_name = 'u0'
+    img_name = 'c12-85v'
+    # img_name = 'u0'
 
     img_data = in_out.read_jpg_file(img_name + '/' + img_name)
 
@@ -45,8 +45,8 @@ def main():
     # diff = count_auto_correlation_and_print(img_data, data_xn, data_xn_cut)
     # max_freq = count_cross_correlation_and_print(diff, data_xn_cut)
 
-    # max_freq = 0.2933  # Для c12-85v
-    max_freq = 0.3882  # Для u0
+    max_freq = 0.2933  # Для c12-85v
+    # max_freq = 0.3882  # Для u0
 
     # Подавитель артефактов
     filtered_img = change(max_freq, img_data)

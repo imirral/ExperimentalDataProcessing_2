@@ -2,10 +2,12 @@ import numpy as np
 
 from classes.in_out import In_Out
 from classes.processing import Processing
+from classes.model import Model
 
 def main():
     in_out = In_Out()
     processing = Processing()
+    model = Model()
 
     if_color = False
 
@@ -26,7 +28,7 @@ def main():
     xcr_1_shape = (1024, 1024)
 
     xcr_1_data = in_out.read_xcr_file(xcr_1_file_name, xcr_1_shape)
-    xcr_1_data_recount = np.rot90(processing.recount_2d(xcr_1_data, 255))
+    xcr_1_data_recount = np.rot90(model.recount_2d(xcr_1_data, 255))
     neg_xcr_1 = processing.negative(xcr_1_data_recount, 255)
 
     in_out.write_jpg_file(neg_xcr_1, 'c12-85v/' + xcr_1_file_name + '_negative')
@@ -40,7 +42,7 @@ def main():
     xcr_2_shape = (2500, 2048)
 
     xcr_2_data = in_out.read_xcr_file(xcr_2_file_name, xcr_2_shape)
-    xcr_2_data_recount = np.rot90(processing.recount_2d(xcr_2_data, 255))
+    xcr_2_data_recount = np.rot90(model.recount_2d(xcr_2_data, 255))
     neg_xcr_2 = processing.negative(xcr_2_data_recount, 255)
 
     in_out.write_jpg_file(neg_xcr_2, 'u0/' + xcr_2_file_name + '_negative')

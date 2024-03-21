@@ -1,16 +1,16 @@
 from classes.in_out import In_Out
-from classes.processing import Processing
+from classes.model import Model
 
 def main():
     in_out = In_Out()
-    processing = Processing()
+    model = Model()
 
     file_name = 'c12-85v'
     shape = (1024, 1024)
 
     # c12-85v
     file_data = in_out.read_xcr_file(file_name, shape)
-    file_data_recount = processing.recount_2d(file_data, 255)
+    file_data_recount = model.recount_2d(file_data, 255)
 
     in_out.show_jpg_files([file_data_recount],
                           [file_name + ' ' + str(file_data.shape)],

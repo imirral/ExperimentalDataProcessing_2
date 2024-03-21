@@ -1,4 +1,4 @@
-from labs import lab6
+from labs import lab7
 
 if __name__ == '__main__':
-    lab6.main()
+    lab7.main()
