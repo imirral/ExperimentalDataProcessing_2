@@ -169,3 +169,20 @@ class Model:
                 new_arr[i, j] = (new_arr[i, j] - min) * scale_factor
 
         return new_arr
+
+    def get_rectangle(self, background_size, rect_size):
+        M, N = background_size
+        m, n = rect_size
+
+        image = np.zeros((M, N))  # Создание черного изображения фона
+
+        # Поиск координат для центрирования прямоугольника
+        start_row = M // 2 - m // 2
+        end_row = start_row + m
+        start_col = N // 2 - n // 2
+        end_col = start_col + n
+
+        # Заполнение белого прямоугольника в центре черного фона
+        image[start_row:end_row, start_col:end_col] = 255
+
+        return image

@@ -173,7 +173,6 @@ class Analysis:
 
     def fourier(self, data):
         length = len(data)
-
         out_data = []
 
         for i in range(length):
@@ -181,15 +180,65 @@ class Analysis:
             im_xn = 0
 
             for k in range(length):
-                re_xn += data[k] * np.cos(2 * math.pi * i * k / length)
-                im_xn += data[k] * np.sin(2 * math.pi * i * k / length)
+                angle = 2 * math.pi * i * k / length
+
+                re_xn += data[k] * np.cos(angle)
+                im_xn += data[k] * np.sin(angle)
 
             re_xn = re_xn / length
             im_xn = im_xn / length
 
             xn = np.sqrt((re_xn ** 2) + (im_xn ** 2))
-
             out_data.append(xn)
+
+        return out_data
+
+    def inverse_fourier(self, data):
+        length = len(data)
+        out_data = []
+
+        for i in range(length):
+            re_xn = 0
+            im_xn = 0
+
+            for k in range(length):
+                angle = 2 * math.pi * i * k / length
+
+                re_xn += data[k] * np.cos(angle)
+                im_xn += data[k] * np.sin(angle)
+
+            xn = re_xn + im_xn
+            out_data.append(xn)
+
+        return out_data
+
+    def fourier_2D(self, image_data):
+        # Применение 1-D прямого преобразования к строкам
+        rows_transformed = np.array([self.fourier(row) for row in image_data])
+
+        # Транспонирование (строки <-> столбцы)
+        transposed = np.transpose(rows_transformed)
+
+        # Применение 1-D прямого преобразования к столбцам
+        columns_transformed = np.array([self.fourier(column) for column in transposed])
+
+        # Транспонирование (строки <-> столбцы)
+        out_data = np.transpose(columns_transformed)
+
+        return out_data
+
+    def inverse_fourier_2D(self, image_data):
+        # Применение 1-D обратного преобразования к строкам
+        rows_transformed = np.array([self.inverse_fourier(row) for row in image_data])
+
+        # Транспонирование (строки <-> столбцы)
+        transposed = np.transpose(rows_transformed)
+
+        # Применение 1-D обратного преобразование к столбцам
+        columns_transformed = np.array([self.inverse_fourier(column) for column in transposed])
+
+        # Транспонирование (строки <-> столбцы)
+        out_data = np.transpose(columns_transformed)
 
         return out_data
 
@@ -204,24 +253,19 @@ class Analysis:
 
         return out_data
 
-    def inverse_fourier(self, data, N):
-        out_data = []
-        for i in range(N):
-            Re_Xn = 0
-            Im_Xn = 0
-            for k in range(N):
-                Re_Xn += data[k] * np.cos(2 * math.pi * i * k / N)
-                Im_Xn += data[k] * np.sin(2 * math.pi * i * k / N)
-            Re_Xn = Re_Xn / N
-            Im_Xn = Im_Xn / N
-            Xn = np.sqrt((Re_Xn ** 2) + (Im_Xn ** 2))
-            out_data.append(Xn)
+    def fourier_rearrange(self, spectrum):
+        m, n = spectrum.shape
+        row_shift, col_shift = m // 2, n // 2
+
+        out_data = np.roll(spectrum, row_shift, axis=0)
+        out_data = np.roll(out_data, col_shift, axis=1)
+
         return out_data
 
     def frequency_response(self, data, n):
         out_data = []
 
-        array = self.fourier(data, n)
+        array = self.fourier(data)
 
         for i in range(n):
             out_data.append(array[i] * n)
