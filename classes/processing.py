@@ -183,3 +183,15 @@ class Processing:
                 result[i][j] = np.median(neighbors)
 
         return result
+
+    # X = Y / H
+    def complex_division(self, y_fourier, h_fourier):
+        return np.divide(y_fourier, h_fourier)
+
+    # X = (Y * H*) / (| H | ^ 2 + a ^ 2)
+    # H* - комплексно-сопряженный спектр для H
+    def complex_noised_division(self, y_fourier, h_fourier, a):
+        h_conjugate = np.conjugate(h_fourier)  # H*
+        denominator = np.abs(h_fourier) ** 2 + a ** 2  # |H|^2 + a^2
+
+        return np.divide(y_fourier * h_conjugate, denominator)

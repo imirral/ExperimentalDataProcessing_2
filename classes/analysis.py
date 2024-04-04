@@ -185,8 +185,8 @@ class Analysis:
                 re_xn += data[k] * np.cos(angle)
                 im_xn += data[k] * np.sin(angle)
 
-            re_xn = re_xn / length
-            im_xn = im_xn / length
+            re_xn /= length
+            im_xn /= length
 
             xn = np.sqrt((re_xn ** 2) + (im_xn ** 2))
             out_data.append(xn)
@@ -269,5 +269,27 @@ class Analysis:
 
         for i in range(n):
             out_data.append(array[i] * n)
+
+        return out_data
+
+    def fourier_sep(self, data):
+        length = len(data)
+        out_data = []
+
+        for i in range(length):
+            re_xn = 0
+            im_xn = 0
+
+            for k in range(length):
+                angle = 2 * math.pi * i * k / length
+
+                re_xn += data[k] * np.cos(angle)
+                im_xn += data[k] * np.sin(angle)
+
+            re_xn /= length
+            im_xn /= length
+
+            xn = re_xn + 1j * im_xn  # 1j - мнимая единица
+            out_data.append(xn)
 
         return out_data
