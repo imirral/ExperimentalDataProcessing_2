@@ -148,7 +148,7 @@ class Model:
         return data
 
     # s = ((r - min) / (max - min)) * S
-    def recount_2d(self, array, s):
+    def recount_2d(self, array, s=255):
         new_arr = array.copy()
 
         min = np.min(new_arr)

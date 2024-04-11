@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from scipy.fft import fft2, ifft2, fftshift, ifftshift
 
 class Processing:
     def anti_shift(self, inData, N):
@@ -195,3 +196,52 @@ class Processing:
         denominator = np.abs(h_fourier) ** 2 + a ** 2  # |H|^2 + a^2
 
         return np.divide(y_fourier * h_conjugate, denominator)
+
+    def reshape_fourier_big(self, img_data, scale_factor):
+        # Прямое 2-D преобразование Фурье
+        f_transformed = fft2(img_data)
+        f_transformed_shifted = fftshift(f_transformed)
+
+        # Увеличение посредством вставки нулей
+        m, n = img_data.shape
+
+        rows_to_add = math.ceil(m * (scale_factor - 1))
+        cols_to_add = math.ceil(n * (scale_factor - 1))
+        padded = np.pad(f_transformed_shifted,
+                        ((rows_to_add // 2, rows_to_add - rows_to_add // 2),
+                         (cols_to_add // 2, cols_to_add - cols_to_add // 2)),
+                        mode='constant', constant_values=0)
+
+        # Обратное 2-D преобразование Фурье
+        f_transformed_shifted_back = ifftshift(padded)
+        img_upscaled = ifft2(f_transformed_shifted_back)
+        img_upscaled = np.abs(img_upscaled)
+
+        return img_upscaled
+
+    def reshape_fourier_small(self, img_data, scale_factor):
+        # Прямое 2-D преобразование Фурье
+        f_transformed = fft2(img_data)
+        f_transformed_shifted = fftshift(f_transformed)
+
+        m, n = img_data.shape
+
+        # Новые размеры изображения
+        new_m = int(m * scale_factor)
+        new_n = int(n * scale_factor)
+
+        # Начальные и конечные точки для обрезки
+        start_m = (m - new_m) // 2
+        start_n = (n - new_n) // 2
+        end_m = start_m + new_m
+        end_n = start_n + new_n
+
+        # Обрезка частот для уменьшения размера
+        trimmed = f_transformed_shifted[start_m:end_m, start_n:end_n]
+
+        # Обратное 2-D преобразование Фурье
+        f_transformed_shifted_back = ifftshift(trimmed)
+        img_downscaled = ifft2(f_transformed_shifted_back)
+        img_downscaled = np.abs(img_downscaled)
+
+        return img_downscaled

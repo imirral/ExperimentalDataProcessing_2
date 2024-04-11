@@ -195,17 +195,36 @@ class Analysis:
 
     def inverse_fourier(self, data):
         length = len(data)
-        out_data = []
+        complex_spektrum = []
 
-        for i in range(length):
+        for n in range(length):
             re_xn = 0
             im_xn = 0
 
             for k in range(length):
-                angle = 2 * math.pi * i * k / length
+                angle = 2 * math.pi * n * k / length
 
                 re_xn += data[k] * np.cos(angle)
                 im_xn += data[k] * np.sin(angle)
+
+            xn = re_xn + im_xn
+            complex_spektrum.append(xn)
+
+        complex_data = list(complex_spektrum)
+        out_data = []
+
+        for n in range(length):
+            re_xn = 0
+            im_xn = 0
+
+            for k in range(length):
+                angle = 2 * math.pi * n * k / length
+
+                re_xn += complex_data[k] * np.cos(angle)
+                im_xn += complex_data[k] * np.sin(angle)
+
+            re_xn /= length
+            im_xn /= length
 
             xn = re_xn + im_xn
             out_data.append(xn)
@@ -272,24 +291,43 @@ class Analysis:
 
         return out_data
 
-    def fourier_sep(self, data):
+    def complex_spectrum(self, data):
         length = len(data)
         out_data = []
 
-        for i in range(length):
+        for n in range(length):
             re_xn = 0
             im_xn = 0
 
             for k in range(length):
-                angle = 2 * math.pi * i * k / length
+                angle = 2 * math.pi * n * k / length
 
                 re_xn += data[k] * np.cos(angle)
                 im_xn += data[k] * np.sin(angle)
 
+            xn = re_xn + 1j * im_xn
+            out_data.append(xn)
+
+        return out_data
+
+    def inverse_fourier_complex(self, complex_data):
+        length = len(complex_data)
+        out_data = []
+
+        for n in range(length):
+            re_xn = 0
+            im_xn = 0
+
+            for k in range(length):
+                angle = 2 * math.pi * n * k / length
+
+                re_xn += complex_data[k] * np.cos(angle)
+                im_xn += complex_data[k] * np.sin(angle)
+
             re_xn /= length
             im_xn /= length
 
-            xn = re_xn + 1j * im_xn  # 1j - мнимая единица
+            xn = re_xn + 1j * im_xn
             out_data.append(xn)
 
         return out_data

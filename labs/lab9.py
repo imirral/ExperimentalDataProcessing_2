@@ -43,11 +43,11 @@ def main():
         y = analysis.convolution(x, h, n, m)
 
         def a():
-            y_fourier = analysis.fourier_sep(y)  # Комплексн. спектр кардиограммы
-            h_fourier = analysis.fourier_sep(h)  # Комплексн. спектр ф-ции сердечн. мышцы
+            y_fourier = analysis.complex_spectrum(y)  # Комплексн. спектр кардиограммы
+            h_fourier = analysis.complex_spectrum(h)  # Комплексн. спектр ф-ции сердечн. мышцы
 
             x_spectre = processing.complex_division(y_fourier, h_fourier)
-            x_spectre_inverse = analysis.inverse_fourier(x_spectre)
+            x_spectre_inverse = analysis.inverse_fourier_complex(x_spectre)
 
             plt.figure()
             plot_graph(411, h, 'h(t)')
@@ -60,11 +60,11 @@ def main():
             noise = model.noise(n, max(y) / 100)
             y_noised = model.add_model(y, noise, n)
 
-            y_fourier = analysis.fourier_sep(y_noised)  # Комплексн. спектр зашумленн. кардиограммы
-            h_fourier = analysis.fourier_sep(h)   # Комплексн. спектр ф-ции сердечн. мышцы
+            y_fourier = analysis.complex_spectrum(y_noised)  # Комплексн. спектр зашумленн. кардиограммы
+            h_fourier = analysis.complex_spectrum(h)   # Комплексн. спектр ф-ции сердечн. мышцы
 
             x_spectre = processing.complex_noised_division(y_fourier, h_fourier, a)
-            x_spectre_inverse = analysis.inverse_fourier(x_spectre)
+            x_spectre_inverse = analysis.inverse_fourier_complex(x_spectre)
 
             plt.figure()
             plot_graph(411, h, 'h(t)')
@@ -85,7 +85,7 @@ def main():
         for i in range(h.size, shape[1]):
             h = np.append(h, 0)
 
-        h_fourier = analysis.fourier_sep(h)  # Комплексн. спектр искажающей ф-ции
+        h_fourier = analysis.complex_spectrum(h)  # Комплексн. спектр искажающей ф-ции
 
         plt.plot(h)
         plt.suptitle('kern64L.dat')
@@ -104,10 +104,10 @@ def main():
             for i in range(img_data.shape[0]):
                 row = img_data[i, :]
 
-                g_fourier = analysis.fourier_sep(row)  # Комплексн. спектр строки изображен.
+                g_fourier = analysis.complex_spectrum(row)  # Комплексн. спектр строки изображен.
 
                 x_spectre = processing.complex_division(g_fourier, h_fourier)
-                x_spectre_inverse = analysis.inverse_fourier(x_spectre)
+                x_spectre_inverse = analysis.inverse_fourier_complex(x_spectre)
 
                 filtered = np.insert(filtered, filtered.shape[0], np.asarray(x_spectre_inverse), axis=0)
 
@@ -115,7 +115,7 @@ def main():
             plt.subplot(121)
             in_out.show_jpg_sub(img_data, if_color, 'blur259x185L.dat')
             plt.subplot(122)
-            in_out.show_jpg_sub(filtered, if_color, 'filtered blur259x185L.dat')
+            in_out.show_jpg_sub(np.fliplr(filtered), if_color, 'filtered blur259x185L.dat')
             plt.show()
 
         def subtask_b(a=0.01):
@@ -131,10 +131,10 @@ def main():
             for i in range(img_data.shape[0]):
                 row = img_data[i, :]
 
-                g_fourier = analysis.fourier_sep(row)   # Комплексн. спектр строки изображен.
+                g_fourier = analysis.complex_spectrum(row)   # Комплексн. спектр строки изображен.
 
                 x_spectre = processing.complex_noised_division(g_fourier, h_fourier, a)
-                x_spectre_inverse = analysis.inverse_fourier(x_spectre)
+                x_spectre_inverse = analysis.inverse_fourier_complex(x_spectre)
 
                 filtered = np.insert(filtered, filtered.shape[0], np.asarray(x_spectre_inverse), axis=0)
 
@@ -142,11 +142,11 @@ def main():
             plt.subplot(121)
             in_out.show_jpg_sub(img_data, if_color, 'blur259x185L_N.dat')
             plt.subplot(122)
-            in_out.show_jpg_sub(filtered, if_color, f'filtered blur259x185L_N.dat (a = {a})')
+            in_out.show_jpg_sub(np.fliplr(filtered), if_color, f'filtered blur259x185L_N.dat (a = {a})')
             plt.show()
 
         subtask_a()
-        subtask_b(0.1)
+        subtask_b(0.001)
 
-    task1()
+    # task1()
     task2()

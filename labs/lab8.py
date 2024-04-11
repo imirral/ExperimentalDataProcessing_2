@@ -30,7 +30,7 @@ def main():
         harm = model.harm(n, 100, 33, 0.001)
 
         harm_fourier = analysis.fourier(harm)
-        harm_inverse = analysis.inverse_fourier(harm_fourier)
+        harm_inverse = analysis.inverse_fourier(harm)
 
         new_x_n = analysis.spectrum_fourier([i for i in range(n)], n, dt)
 
@@ -63,7 +63,7 @@ def main():
         spectrum = analysis.fourier_2D(test_img)
         centered_spectrum = analysis.fourier_rearrange(spectrum)
 
-        inverse = analysis.inverse_fourier_2D(spectrum)
+        inverse = analysis.inverse_fourier_2D(test_img)
 
         in_out.show_jpg_files([test_img, centered_spectrum, inverse],
                               ['original', 'centered_spectrum', 'inverse_fourier'],
@@ -79,7 +79,7 @@ def main():
 
         in_out.write_jpg_file(centered_spectrum, f'{img_name}/{img_name}_spectrum')
 
-        inverse = analysis.inverse_fourier_2D(spectrum)
+        inverse = analysis.inverse_fourier_2D(img)
 
         in_out.show_jpg_files([img, centered_spectrum, inverse],
                               ['original', 'centered_spectrum', 'inverse_fourier'],
@@ -87,5 +87,5 @@ def main():
 
     # task1()
     # task2()
-    task3()
+    # task3()
     # task4()
