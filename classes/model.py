@@ -16,20 +16,25 @@ class Model:
         x = b * np.exp(a * t)
         return x
 
-    def noise(self, N, R):
+    def noise(self, n, r):
         data = []
-        for i in range(N):
+        for i in range(n):
             xk = random.random()
             data.append(xk)
-        recount_data = self.recount(data, R)
+        recount_data = self.recount(data, r)
         return recount_data
 
-    def noise_2d(self, image_shape):
+    def noise_2d(self, image_shape, noise_level=0.1, r=255):
         rows, cols = image_shape
         noise_data = []
 
         for _ in range(rows):
-            noise_row = self.noise(cols, R=255)
+            noise_row = []
+            for _ in range(cols):
+                if random.random() < noise_level:
+                    noise_row.append(random.random() * r)
+                else:
+                    noise_row.append(0)
             noise_data.append(noise_row)
 
         return noise_data

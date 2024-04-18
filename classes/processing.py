@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from scipy.fft import fft2, ifft2, fftshift, ifftshift
+from scipy.ndimage import gaussian_filter
 
 class Processing:
     def anti_shift(self, inData, N):
@@ -75,6 +76,11 @@ class Processing:
             lpw[i] = lpw[i] / sumg
         return lpw
 
+    # sigma - стандартное отклонение Гауссовой функции, определяющее степень размытия
+    def lpf_2d(self, img_data, sigma):
+        return gaussian_filter(img_data, sigma=sigma)
+
+
     def reflect_lpf(self, lpw):
         reflection = []
         for i in range(len(lpw) - 1, 0, -1):
@@ -92,6 +98,11 @@ class Processing:
             else:
                 hpw.append(- lpw[k])
         return hpw
+
+    # sigma - стандартное отклонение Гауссовой функции, определяющее степень размытия
+    def hpf_2d(self, img_data, sigma):
+        lpf = self.lpf_2d(img_data, sigma)
+        return img_data - lpf
 
     def bpf(self, fc1, fc2, dt, m):
         lpw1 = self.reflect_lpf(self.lpf(fc1, dt, m))
@@ -245,3 +256,11 @@ class Processing:
         img_downscaled = np.abs(img_downscaled)
 
         return img_downscaled
+
+    def threshold(self, img_data, limit):
+        out_data = np.zeros_like(img_data)
+
+        out_data[img_data >= limit] = 255
+        out_data[img_data < limit] = 0
+
+        return out_data
