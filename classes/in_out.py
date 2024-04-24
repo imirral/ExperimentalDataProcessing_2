@@ -53,13 +53,13 @@ class In_Out:
         plt.tight_layout()
         plt.show()
 
-    def show_jpg_sub(self, img, if_color, title, fontsize=15):
+    def show_jpg_sub(self, img, if_color, name, fontsize=15):
         if not if_color:
             plt.imshow(img, cmap='gray')
         else:
             plt.imshow(img)
 
-        plt.title(title, fontsize=fontsize)
+        plt.title(name, fontsize=fontsize)
         plt.axis('off')
 
     def write_jpg_file(self, array, file_name):
