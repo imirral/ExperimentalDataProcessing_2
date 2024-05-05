@@ -1,3 +1,5 @@
+import numpy as np
+
 from classes.in_out import In_Out
 from classes.analysis import Analysis
 from classes.processing import Processing
@@ -11,13 +13,28 @@ analysis = Analysis()
 is_color = False
 
 
+def plot_threshold(img_data, limit, name):
+    threshold = processing.threshold(img_data, limit)
+
+    in_out.show_jpg_files([img_data, threshold],
+                          [name, 'threshold'],
+                          is_color)
+
+    return threshold
+
+
 def main():
     model_name = 'model'
     grace_name = 'grace'
 
+    m = 64
+    dt = 1
+    sigma = 0.8
+    mask = 3
+
     # sigma - стандартное отклонение Гауссовой функции, определяющее степень размытия
 
-    def plot(img_name, limit1, limit2, limit3, sigma=0.8, mask=3):
+    def plot(img_name, fc):
         # Оригинальное изображение
         img_data = in_out.read_jpg_file(img_name + '/' + img_name)
 
@@ -27,6 +44,7 @@ def main():
 
         # Отфильтрованное изображение
         filtered_data = processing.average_filter(noisy_data, mask)
+        filtered_data = np.array(filtered_data)
 
         in_out.show_jpg_files([img_data, noisy_data, filtered_data],
                               ['original', 'noised image',
@@ -34,44 +52,44 @@ def main():
                               is_color)
 
         def without_noise():
-            lpf_image = processing.lpf_2d(img_data, sigma)
-            hpf_image = processing.hpf_2d(img_data, sigma)
+            threshold = plot_threshold(img_data, 200, 'original')
 
-            hpf_threshold = processing.threshold(hpf_image, limit1)
+            lpf_image = processing.lpf_2d(threshold, sigma)
+            hpf_image = processing.hpf_2d(threshold, fc, dt, m)
 
-            in_out.show_jpg_files([img_data, lpf_image, hpf_threshold],
-                                  ['original',
-                                   f'LPF (sigma = {sigma})',
-                                   f'HPF (sigma = {sigma}, limit = {limit1})'],
+            in_out.show_jpg_files([threshold,
+                                   processing.threshold(lpf_image, 50),
+                                   processing.threshold(hpf_image, 50)],
+                                  ['threshold', 'LPF', 'HPF'],
                                   is_color)
 
         def with_noise():
-            lpf_image = processing.lpf_2d(noisy_data, sigma)
-            hpf_image = processing.hpf_2d(noisy_data, sigma)
+            threshold = plot_threshold(noisy_data, 200, 'noised image')
 
-            hpf_threshold = processing.threshold(hpf_image, limit2)
+            lpf_image = processing.lpf_2d(threshold, sigma)
+            hpf_image = processing.hpf_2d(threshold, fc, dt, m)
 
-            in_out.show_jpg_files([noisy_data, lpf_image, hpf_threshold],
-                                  ['noisy image',
-                                   f'LPF (sigma = {sigma})',
-                                   f'HPF (sigma = {sigma}, limit = {limit2})'],
+            in_out.show_jpg_files([threshold,
+                                   processing.threshold(lpf_image, 50),
+                                   processing.threshold(hpf_image, 50)],
+                                  ['threshold', 'LPF', 'HPF'],
                                   is_color)
 
         def filtered():
-            lpf_image = processing.lpf_2d(filtered_data, sigma)
-            hpf_image = processing.hpf_2d(filtered_data, sigma)
+            threshold = plot_threshold(filtered_data, 200, f'average filter (mask {mask}x{mask})')
 
-            hpf_threshold = processing.threshold(hpf_image, limit3)
+            lpf_image = processing.lpf_2d(threshold, sigma)
+            hpf_image = processing.hpf_2d(threshold, fc, dt, m)
 
-            in_out.show_jpg_files([filtered_data, lpf_image, hpf_threshold],
-                                  [f'filtered image (mask {mask}x{mask})',
-                                   f'LPF (sigma = {sigma})',
-                                   f'HPF (sigma = {sigma}, limit = {limit3})'],
+            in_out.show_jpg_files([threshold,
+                                   processing.threshold(lpf_image, 50),
+                                   processing.threshold(hpf_image, 50)],
+                                  [f'threshold', 'LPF', 'HPF'],
                                   is_color)
 
         without_noise()
         with_noise()
         filtered()
 
-    plot(model_name, 50, 10, 2)
-    plot(grace_name, 6, 4, 1)
+    plot(model_name, 0.07)
+    plot(grace_name, 0.05)

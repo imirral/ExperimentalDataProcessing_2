@@ -1,7 +1,9 @@
 import math
 import numpy as np
 from scipy.fft import fft2, ifft2, fftshift, ifftshift
+from scipy import signal
 from scipy.ndimage import gaussian_filter
+
 
 class Processing:
     def anti_shift(self, inData, N):
@@ -76,11 +78,6 @@ class Processing:
             lpw[i] = lpw[i] / sumg
         return lpw
 
-    # sigma - стандартное отклонение Гауссовой функции, определяющее степень размытия
-    def lpf_2d(self, img_data, sigma):
-        return gaussian_filter(img_data, sigma=sigma)
-
-
     def reflect_lpf(self, lpw):
         reflection = []
         for i in range(len(lpw) - 1, 0, -1):
@@ -100,9 +97,31 @@ class Processing:
         return hpw
 
     # sigma - стандартное отклонение Гауссовой функции, определяющее степень размытия
-    def hpf_2d(self, img_data, sigma):
-        lpf = self.lpf_2d(img_data, sigma)
+    def lpf_2d(self, img_data, sigma):
+        lpf = gaussian_filter(img_data, sigma=sigma)
         return img_data - lpf
+
+    def hpf_2d(self, image_data, fc, dt, m):
+        rows = len(image_data)
+        cols = len(image_data[0])
+
+        hpf_data = self.hpf(fc, dt, m)
+
+        new_lines = []
+
+        for i in range(rows):
+            conv = signal.convolve(image_data[i], hpf_data, mode='same')
+            new_lines.append(conv)
+
+        new_lines = np.array(new_lines)
+
+        erosion = np.zeros((rows, cols))
+
+        for i in range(cols):
+            conv = signal.convolve(new_lines[:, i], hpf_data, mode='same')
+            erosion[:, i] = conv
+
+        return erosion
 
     def bpf(self, fc1, fc2, dt, m):
         lpw1 = self.reflect_lpf(self.lpf(fc1, dt, m))
@@ -264,3 +283,53 @@ class Processing:
         out_data[img_data < limit] = 0
 
         return out_data
+
+    def dilation(self, img_data, kernel):
+        img_h = img_data.shape[0]
+        img_w = img_data.shape[1]
+
+        kernel_h, kernel_w = np.shape(kernel)
+
+        kernel_cx = kernel_w // 2
+        kernel_cy = kernel_h // 2
+
+        final_image_dilation = np.empty(img_data.shape)
+
+        for row in range(img_h):
+            for col in range(img_w):
+                max = 0
+
+                for x in range(row - kernel_cx, row + kernel_cx + 1):
+                    for y in range(col - kernel_cy, col + kernel_cy + 1):
+                        if 0 <= x < img_h and 0 <= y < img_w:
+                            if img_data[x, y] > max:
+                                max = img_data[x, y]
+
+                final_image_dilation[row, col] = max
+
+        return final_image_dilation
+
+    def erosion(self, img_data, kernel):
+        img_h = img_data.shape[0]
+        img_w = img_data.shape[1]
+
+        kernel_h, kernel_w = np.shape(kernel)
+
+        kernel_cx = kernel_w // 2
+        kernel_cy = kernel_h // 2
+
+        final_image_erosion = np.empty(img_data.shape)
+
+        for row in range(img_h):
+            for col in range(img_w):
+                min = 255
+
+                for x in range(row - kernel_cx, row + kernel_cy + 1):
+                    for y in range(col - kernel_cy, col + kernel_cy + 1):
+                        if 0 <= x < img_h and 0 <= y < img_w:
+                            if img_data[x, y] < min:
+                                min = img_data[x, y]
+
+                final_image_erosion[row, col] = min
+
+        return final_image_erosion
