@@ -179,6 +179,15 @@ class Processing:
 
         return new_image
 
+    def adjust_histogram_bounds(self, image):
+        # Определение минимума и максимума или перцентилей
+        min_val = np.percentile(image, 1)
+        max_val = np.percentile(image, 99)
+
+        # Растяжение гистограммы на всю шкалу значений, например 0-255 для 8-битного изображения
+        image_stretched = np.clip((image - min_val) / (max_val - min_val) * 255, 0, 255).astype(np.uint8)
+        return image_stretched
+
     def average_filter(self, image_data, mask=3):
         rows = len(image_data)
         cols = len(image_data[0])
@@ -281,6 +290,31 @@ class Processing:
 
         out_data[img_data >= limit] = 255
         out_data[img_data < limit] = 0
+
+        return out_data
+
+    def filter_with_gradient(self, data, mask1, mask2):
+        out_data = np.zeros(data.shape)
+
+        for row in range(1, data.shape[0] - 1):
+            for col in range(1, data.shape[1] - 1):
+                # Подматрица изображения размерем 3х3
+                part = data[row - 1: row + 2, col - 1: col + 2]
+
+                # Свертка подматрицы и маски 1
+                new_el1 = np.sum(mask1 * part)
+                # Свертка подматрицы и маски 2
+                new_el2 = np.sum(mask2 * part)
+
+                # Величина градиента = Евклидово расстояние (по теореме Пифагора)
+                new_el = np.sqrt(new_el1 ** 2 + new_el2 ** 2)
+
+                if new_el < 0:
+                    new_el = 0
+                if new_el > 255:
+                    new_el = 255
+
+                out_data[row, col] = new_el
 
         return out_data
 
