@@ -62,6 +62,8 @@ class In_Out:
         plt.title(name, fontsize=fontsize)
         plt.axis('off')
 
+        plt.show()
+
     def write_jpg_file(self, array, file_name):
         cv2.imwrite('data/jpg/' + file_name + '.jpg', array)
 
@@ -113,3 +115,7 @@ class In_Out:
                                  interpolation=cv2.INTER_LINEAR_EXACT)
 
         return resized_img
+
+    def imshow(self, image_data, axes):
+        axes.imshow(cv2.cvtColor(image_data, cv2.COLOR_BGR2RGB))
+        axes.axis('off')

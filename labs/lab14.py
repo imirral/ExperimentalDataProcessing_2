@@ -1,14 +1,14 @@
 import numpy as np
 
-from classes.analysis import Analysis
-from classes.in_out import In_Out
-from classes.processing import Processing
 from classes.model import Model
+from classes.in_out import In_Out
+from classes.analysis import Analysis
+from classes.processing import Processing
 
-analysis = Analysis()
-in_out = In_Out()
-processing = Processing()
 model = Model()
+in_out = In_Out()
+analysis = Analysis()
+processing = Processing()
 
 is_color = False
 
