@@ -1,5 +1,3 @@
-import numpy as np
-
 from classes.model import Model
 from classes.in_out import In_Out
 from classes.analysis import Analysis
@@ -12,62 +10,64 @@ processing = Processing()
 
 is_color = False
 
-mask_prewitt = [np.array([[-1, -1, -1],
-                          [0, 0, 0],
-                          [1, 1, 1]]),
-                np.array([[-1, 0, 1],
-                          [-1, 0, 1],
-                          [-1, 0, 1]]),
-                np.array([[0, 1, 1],
-                          [-1, 0, 1],
-                          [-1, -1, 0]]),
-                np.array([[-1, -1, 0],
-                          [-1, 0, 1],
-                          [0, 1, 1]])]
-
-
-def read_bin_file(file_name):
-    data = np.fromfile(f'data/bin/{file_name}.bin', dtype="uint16")
-    substr = file_name.split('x')
-    size = int(substr[1])
-    shape = (size, size)
-    data = np.asarray(data).reshape(shape)
-    return data
-
-
-def data_enhancement(data):
-    # Пересчет 2D данных
-    step1 = model.recount_2d(data, 255)
-
-    # Фильтрация с помощью градиентного фильтра (Превитт)
-    step2 = processing.filter_with_gradient(step1, mask_prewitt[0], mask_prewitt[1])
-
-    # Ослабление эффекта фильтрации
-    step3 = np.asarray(step2 / 3, int)
-
-    # Комбинирование оригинальных и обработанных данных
-    step4 = model.recount_2d(step1 + step3, 255)
-
-    # Градационное преобразование (эквализация гистограммы)
-    step5 = processing.adjust_histogram_bounds(step4)
-
-    in_out.show_jpg_files([step1, step2, step3, step4, step5],
-                          ['step №1', 'step №2', 'step №3', 'step №4', 'step №5'],
-                          is_color)
-
-    in_out.show_jpg_files([step1, step5],
-                          ['original', 'changed'],
-                          is_color)
-
-    return step5
+c = 1
+gamma = 0.4
 
 
 def main():
     file_names = ['brain-H_x512', 'brain-V_x256', 'spine-H_x256', 'spine-V_x512']
 
     for file_name in file_names:
-        data = read_bin_file(file_name)
-        in_out.write_jpg_file(data, file_name + '/' + file_name)
+        # Считывание бинарного изображения
+        # image_data = in_out.read_bin_file(file_name)
+        # in_out.write_jpg_file(image_data, f'{file_name}/{file_name}')
 
-        result = data_enhancement(data)
-        in_out.write_jpg_file(result, file_name + '/' + file_name + '_changed')
+        # Считывание изображения
+        image_data = in_out.read_jpg_file(f'{file_name}/{file_name}')
+
+        # Порогове преобразование (сегментация)
+        step_1 = processing.threshold(image_data, 8)
+
+        # Применение градационных преобразований к выделенному сегменту
+        step_2 = apply_gamma_transform(image_data, step_1)
+        step_3 = apply_histogram_equalization(step_2, step_1)
+
+        in_out.write_jpg_file(step_3, f'{file_name}/{file_name}_changed')
+
+        in_out.show_jpg_files([image_data, step_1, step_2, step_3],
+                              ['original', 'segmented', 'gamma transform', 'histogram equalization'],
+                              is_color)
+
+        changed_data = in_out.read_jpg_file(f'{file_name}/{file_name}_changed')
+
+        in_out.show_jpg_files([image_data, changed_data],
+                              ['original', 'changed'],
+                              is_color)
+
+
+def apply_gamma_transform(image_data, mask):
+    # Выделение данных обекта
+    object_segment = image_data[mask == 255]
+
+    # Гамма-коррекция данных объекта
+    transformed_object_segment = processing.gamma_transform(object_segment, c, gamma)
+
+    # Наложение преобразованных данных на исх. изображение
+    transformed_image = image_data.copy()
+    transformed_image[mask == 255] = transformed_object_segment
+
+    return transformed_image
+
+
+def apply_histogram_equalization(image_data, mask):
+    # Выделение данных обекта
+    object_segment = image_data[mask == 255]
+
+    # Эквализация гистограммы данных объекта
+    transformed_object_segment = processing.histogram_equalization(object_segment)
+
+    # Наложение преобразованных данных на исх. изображение
+    transformed_image = image_data.copy()
+    transformed_image[mask == 255] = transformed_object_segment
+
+    return transformed_image

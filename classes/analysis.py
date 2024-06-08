@@ -12,94 +12,6 @@ class Analysis:
     def average(self, data):
         return sum(data) / len(data)
 
-    def dispersion(self, data):
-        avg_value = self.average(data)
-        disp = 0
-        for i in range(len(data)):
-            disp += (data[i] - avg_value) ** 2
-        disp = disp / len(data)
-        return disp
-
-    def standard_deviation(self, data):
-        return self.dispersion(data) ** (0.5)
-
-    def mean_square(self, data):
-        psi = 0
-        for i in range(len(data)):
-            psi += data[i] ** 2
-        psi = psi / len(data)
-        return psi
-
-    def root_mean_square_deviation(self, data):
-        return self.mean_square(data) ** (0.5)
-
-    def asymmetry(self, data):
-        avg_value = self.average(data)
-        m3 = 0
-        for i in range(len(data)):
-            m3 += (data[i] - avg_value) ** 3
-        m3 = m3 / len(data)
-        return m3
-
-    def asymmetry_coefficient(self, data):
-        return self.asymmetry(data) / (self.standard_deviation(data) ** 3)
-
-    def excess(self, data):
-        avg_value = self.average(data)
-        m4 = 0
-        for i in range(len(data)):
-            m4 += (data[i] - avg_value) ** 4
-        m4 = m4 / len(data)
-        return m4
-
-    def kurtosis(self, data):
-        return self.excess(data) / (self.standard_deviation(data) ** 4) - 3
-
-    def print_statistics(self, data):
-        print("1. min = ", self.minimum(data), ", max = ", self.maximum(data))
-        print("2. Среднее значение: ", self.average(data))
-        print("3. Дисперсия: ", self.dispersion(data))
-        print("4. Стандартное отклонение: ", self.standard_deviation(data))
-        print("5. Асимметрия: ", self.asymmetry(data))
-        print("   Коэффициент асимметрии: ", self.asymmetry_coefficient(data))
-        print("6. Эксцесс: ", self.excess(data))
-        print("   Куртозис: ", self.kurtosis(data))
-        print("7. Средний квадрат: ", self.mean_square(data))
-        print("8. Среднеквадратическая ошибка: ", self.root_mean_square_deviation(data))
-
-    def stationarity(self, N, data, M):
-        is_stationary = True
-        avg = []
-        so = []
-        for i in range(M):
-            avg.append(self.average(data[i * N // M: (i + 1) * N // M]))
-            so.append(self.standard_deviation(data[i * N // M: (i + 1) * N // M]))
-        for i in range(M):
-            for j in range(M):
-                if i != j:
-                    if abs((avg[i] - avg[j]) * 100) >= 10 or abs((so[i] - so[j]) * 100) >= 10:
-                        is_stationary = False
-                        break
-        if is_stationary:
-            print("Процесс стационарный")
-        else:
-            print("Процесс нестационарный")
-
-    def hist(self, data, N, M):
-        hist = dict()
-        x_min = min(data)
-        x_max = max(data)
-        step = (x_max - x_min) / M
-        for i in range(M):
-            left_border = x_min + i * step
-            right_border = left_border + step
-            count = 0
-            for j in range(N):
-                if left_border <= data[j] <= right_border:
-                    count += 1
-            hist[left_border] = count
-        return hist
-
     def hist_2d(self, image):
         hist = [0] * 256
 
@@ -278,16 +190,6 @@ class Analysis:
 
         out_data = np.roll(spectrum, row_shift, axis=0)
         out_data = np.roll(out_data, col_shift, axis=1)
-
-        return out_data
-
-    def frequency_response(self, data, n):
-        out_data = []
-
-        array = self.fourier(data)
-
-        for i in range(n):
-            out_data.append(array[i] * n)
 
         return out_data
 

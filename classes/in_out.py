@@ -87,14 +87,27 @@ class In_Out:
 
             file.write(binary_data)
 
-    def read_bin_file(self, file_name, shape):
-        with (open('data/bin/' + file_name + '.bin', 'rb') as file):
-            # Чтение необходимого количества байт данных
-            binary_data = file.read(shape[0] * shape[1] * 2)
+    def read_bin_file(self, file_name):
+        # Извлечение размера изображения
+        substr = file_name.split('x')
+        size = int(substr[1])
+        shape = (size, size)
 
+        with open(f'data/bin/{file_name}.bin', 'rb') as file:
+            # Чтение необходимого количества байт данных
+            binary_data = file.read(shape[0] * shape[1] * 2)  # 2 байта на элемент (uint16)
+
+            # Преобразование бинарных данных в массив numpy с типом uint16
             data = np.array(struct.unpack('<' + 'H' * (shape[0] * shape[1]), binary_data)).reshape(shape)
 
-            return data
+            # Нормализация данных в диапазон [0, 255] и преобразование к uint8
+            image_data = cv2.normalize(data, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+            image_data = image_data.astype(np.uint8)
+
+            # Преобразование изображения из RGB модели в ч/б
+            image_data = cv2.cvtColor(image_data, cv2.COLOR_GRAY2BGR)
+
+            return image_data
 
     # s = Ближайший известный пиксель
     def reshape_nearest_neighbor(self, img, coef):

@@ -6,22 +6,6 @@ from scipy.ndimage import gaussian_filter
 
 
 class Processing:
-    def anti_shift(self, inData, N):
-        out_data = inData
-        c = sum(inData) / len(inData)
-        for i in range(len(inData)):
-            out_data[i] = inData[i] - c
-        return out_data
-
-    def anti_spike(self, data, N, R):
-        out_data = []
-        for i in range(N):
-            if (data[i] > R or data[i] < -R) and i != 0 and i != N - 1:
-                out_data.append((data[i - 1] + data[i + 1]) / 2)
-            else:
-                out_data.append(data[i])
-        return out_data
-
     def anti_trend_linear(self, data):
         length = len(data)
 
@@ -30,28 +14,6 @@ class Processing:
         for i in range(length - 1):
             out_data.append(data[i + 1] - data[i])
 
-        return out_data
-
-    def anti_trend_nonlinear(self, data, N, W):
-        out_data = []
-        for i in range(N - W):
-            x_n = 0
-            for k in range(W):
-                x_n += data[i + k]
-            x_n = x_n / W
-            out_data.append(x_n)
-        return out_data
-
-    def anti_noise(self, data, N, M):
-        out_data = []
-        print(len(data))
-        for i in range(N):
-            element = 0
-            for j in range(M):
-                # print(i, j)
-                element += data[j][i]
-            element = element / M
-            out_data.append(element)
         return out_data
 
     def lpf(self, fc, dt, m):
@@ -123,15 +85,6 @@ class Processing:
 
         return erosion
 
-    def bpf(self, fc1, fc2, dt, m):
-        lpw1 = self.reflect_lpf(self.lpf(fc1, dt, m))
-        lpw2 = self.reflect_lpf(self.lpf(fc2, dt, m))
-        bpw = []
-        Loper = 2 * m + 1
-        for k in range(Loper):
-            bpw.append(lpw2[k] - lpw1[k])
-        return bpw
-
     def bsf(self, fc1, fc2, dt, m):
         lpw1 = self.reflect_lpf(self.lpf(fc1, dt, m))
         lpw2 = self.reflect_lpf(self.lpf(fc2, dt, m))
@@ -179,13 +132,13 @@ class Processing:
 
         return new_image
 
-    def adjust_histogram_bounds(self, image):
-        # Определение минимума и максимума или перцентилей
-        min_val = np.percentile(image, 1)
-        max_val = np.percentile(image, 99)
+    def histogram_equalization(self, image_data):
+        # Определение минимума и максимума (перцентилей)
+        min_val = np.percentile(image_data, 1)
+        max_val = np.percentile(image_data, 99)
 
-        # Растяжение гистограммы на всю шкалу значений, например 0-255 для 8-битного изображения
-        image_stretched = np.clip((image - min_val) / (max_val - min_val) * 255, 0, 255).astype(np.uint8)
+        # Растяжение гистограммы 0 - 255
+        image_stretched = np.clip((image_data - min_val) / (max_val - min_val) * 255, 0, 255).astype(np.uint8)
         return image_stretched
 
     def average_filter(self, image_data, mask=3):
